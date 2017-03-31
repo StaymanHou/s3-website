@@ -46,3 +46,10 @@ var defaultWebsiteConfig = {
     }
   }
 }
+
+module.exports = {
+  defaultConfig: defaultConfig,
+  templateConfig: templateConfig,
+  defaultBucketConfig: defaultBucketConfig,
+  defaultWebsiteConfig: defaultWebsiteConfig,
+}

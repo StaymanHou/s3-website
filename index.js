@@ -14,6 +14,9 @@ var s3diff = require('s3-diff')
 var logUpdate = require('log-update')
 var array = require('lodash/array')
 
+var utils = require('./utils')
+var configs = require('./configs')
+
 
 function mergeResults (oldResult, newResult) {
   var updated = oldResult.updated.concat(newResult.updated)
@@ -330,11 +333,11 @@ function normalizeKey (prefix, key) {
 }
 
 function deleteFiles (s3, config, files, cb, results = {done: [], errors: []}) {
-  sequentially(s3, config, deleteFile, files, cb)
+  utils.sequentially(s3, config, deleteFile, files, cb)
 }
 
 function uploadFiles (s3, config, files, cb, results = {done: [], errors: []}) {
-  sequentially(s3, config, uploadFile, files, cb)
+  utils.sequentially(s3, config, uploadFile, files, cb)
 }
 
 function putWebsiteContent (s3, config, cb) {
@@ -370,14 +373,14 @@ function putWebsiteContent (s3, config, cb) {
 
     function handleRetry (err, results) {
       if (results.errors.length > 0) {
-        retry(s3, config, data, results, logResults)
+        utils.retry(s3, config, data, results, logResults)
         return
       }
       logResults(err, results)
     }
 
     // Delete files that exist on s3, but not locally
-    chunkedAction(
+    utils.chunkedAction(
        s3,
        config,
        deleteFiles,
@@ -386,11 +389,11 @@ function putWebsiteContent (s3, config, cb) {
          if (err) { console.error(err) }
          results.removed = results.removed.concat(result.done)
          results.errors = results.errors.concat(result.errors)
-         checkDone(data, results, handleRetry)
+         utils.checkDone(data, results, handleRetry)
        })
 
     // Upload changed files
-    chunkedAction(
+    utils.chunkedAction(
        s3,
        config,
        uploadFiles,
@@ -399,11 +402,11 @@ function putWebsiteContent (s3, config, cb) {
          if (err) { console.error(err) }
          results.updated = results.updated.concat(result.done)
          results.errors = results.errors.concat(result.errors)
-         checkDone(data, results, handleRetry)
+         utils.checkDone(data, results, handleRetry)
        })
 
      // Upload files that exist locally but not on s3
-    chunkedAction(
+    utils.chunkedAction(
        s3,
        config,
        uploadFiles,
@@ -412,22 +415,14 @@ function putWebsiteContent (s3, config, cb) {
          if (err) { console.error(err) }
          results.uploaded = results.uploaded.concat(result.done)
          results.errors = results.errors.concat(result.errors)
-         checkDone(data, results, handleRetry)
+         utils.checkDone(data, results, handleRetry)
        })
 
-    checkDone(data, results, handleRetry)
+    utils.checkDone(data, results, handleRetry)
   })
 }
 
-var utilities = {
-  retry: retry,
-  sequentially: sequentially,
-  chunkedAction: chunkedAction,
-  checkDone: checkDone
-}
-
 module.exports = {
-  utils: utilities,
   s3site: s3site,
   deploy: putWebsiteContent,
   config: getConfig,
