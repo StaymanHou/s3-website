@@ -65,10 +65,10 @@ function s3site (config, cb) {
   assert(typeof config === 'object')
   assert(typeof config.domain === 'string')
 
-  config = defaults(config, defaultConfig)
+  config = defaults(config, configs.defaultConfig)
 
-  var bucketConfig = defaults(config.bucketConfig || {}, defaultBucketConfig)
-  var websiteConfig = defaults(config.websiteConfig || {}, defaultWebsiteConfig)
+  var bucketConfig = defaults(config.bucketConfig || {}, configs.defaultBucketConfig)
+  var websiteConfig = defaults(config.websiteConfig || {}, configs.defaultWebsiteConfig)
 
   if (config.domain) {
     bucketConfig.Bucket = config.domain
@@ -78,7 +78,7 @@ function s3site (config, cb) {
   if (config.region && config.region !== 'us-east-1') { // LocationConstraint for default location is invalid
     bucketConfig.CreateBucketConfiguration = { LocationConstraint: config.region }
   } else {
-    config.region = defaultConfig.region
+    config.region = configs.defaultConfig.region
   }
 
   if (config.redirectall) {
@@ -309,7 +309,7 @@ function getConfig (path, fromCL, cb) {
       return fromFile[key] !== fromCL[key]
     })
 
-    var config = Object.assign(defaultConfig, fromFile, fromCL) // Merge arguments and file parameters
+    var config = Object.assign(configs.defaultConfig, fromFile, fromCL) // Merge arguments and file parameters
 
     if (!config.domain) {
       console.log('No bucket was specified. Check your config file .s3-website.json')
@@ -426,5 +426,5 @@ module.exports = {
   s3site: s3site,
   deploy: putWebsiteContent,
   config: getConfig,
-  templateConfig: templateConfig
+  // templateConfig: templateConfig
 }
