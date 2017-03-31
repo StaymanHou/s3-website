@@ -1,3 +1,6 @@
+var logUpdate = require('log-update')
+var array = require('lodash/array')
+
 function retry (s3, config, allFiles, currentResults, cb) {
   var results = {
     updated: [],

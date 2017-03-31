@@ -1,7 +1,7 @@
 var test = require('tape')
 var supertest = require('supertest')
 var s3site = require('../').s3site
-var s3Utils = require('../').utils
+var s3Utils = require('../utils')
 var AWS = require('aws-sdk')
 
 var config = {
