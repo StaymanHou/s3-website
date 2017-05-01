@@ -15,7 +15,7 @@ var logUpdate = require('log-update')
 var array = require('lodash/array')
 
 var utils = require('./utils')
-var configs = require('./configs')
+var configs = require('./defaults')
 
 
 function mergeResults (oldResult, newResult) {
@@ -426,5 +426,5 @@ module.exports = {
   s3site: s3site,
   deploy: putWebsiteContent,
   config: getConfig,
-  // templateConfig: templateConfig
+  // templateConfig: templateConfig //TODO fix CLI
 }
