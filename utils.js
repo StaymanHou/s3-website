@@ -39,12 +39,30 @@ function retry (s3, config, allFiles, currentResults, cb) {
 
   logUpdate('Retrying failed actions')
   currentResults.errors.forEach(function (error) {
-    if (allFiles.missing.find(function (file) { file === error })) {
+    if (allFiles.missing.find(function (file) { return file === error })) {
       deleteFile(s3, config, error, deletionDone)
     } else {
       uploadFile(s3, config, error, uploadDone)
     }
   })
+}
+
+function checkDone (allFiles, results, cb) {
+  var files = [allFiles.missing, allFiles.changed, allFiles.extra]
+  var finished = [results.uploaded, results.updated, results.removed, results.errors]
+  var totalFiles = files.reduce(function (prev, current) {
+    return prev.concat(current)
+  }, []).length
+  var fileResults = finished.reduce(function (prev, current) {
+    return prev.concat(current)
+  }, []).length
+
+  logUpdate('Finished Uploading ' + fileResults + ' of ' + totalFiles)
+  if (fileResults >= totalFiles && cb) {
+    if (results.errors.length > 0) { }
+    if (totalFiles > 0) { logUpdate('Done Uploading') }
+    cb(null, results)
+  }
 }
 
 // Perform an action on an array of items, action will be invoked again after
