@@ -36,17 +36,31 @@ test('it should include bucketConfig', function (t) {
 })
 
 test('it should not set location constraint for default location', function (t) {
-  var testConfig = {
+  var defaultRegionConfig = {
     domain: 'test.domain',
     region: constants.defaultRegion
   }
 
-  var expectedResult = {
+  var nonDefaultRegionConfig = {
+    domain: 'test.domain',
+    region: constants.regions.euWest1
+  }
+
+  var expectedDefaultRegionResult = {
     Bucket: 'test.domain',
   }
 
-  var result = config.bucketConfig(testConfig)
-  t.deepEqual(result, expectedResult)
+  var expectedNonDefaultRegionResult = {
+    Bucket: 'test.domain',
+    CreateBucketConfiguration: {
+      LocationConstraint: constants.regions.euWest1
+    }
+  }
+
+  var defaultRegionResult = config.bucketConfig(defaultRegionConfig)
+  var nonDefaultRegionResult = config.bucketConfig(nonDefaultRegionConfig)
+  t.deepEqual(defaultRegionResult, expectedDefaultRegionResult)
+  t.deepEqual(nonDefaultRegionResult, expectedNonDefaultRegionResult)
   t.end()
 })
 
