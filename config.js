@@ -53,8 +53,8 @@ function mergeConfig(config, defaultConfig) {
   return Object.assign({}, defaultConfig || {}, config || {});
 }
 
-function bucketConfig() {
-  return null;
+function bucketConfig(config) {
+  return Object.assign({}, config.bucketConfig, {Bucket: config.domain});
 }
 
 function websiteConfig() {

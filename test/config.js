@@ -16,4 +16,22 @@ test('it should handle no given values', function (t) {
 })
 
 // bucketConfig
+test('it should include bucketConfig', function (t) {
+  var testConfig = {
+    domain: 'test.domain',
+    bucketConfig: {
+      ACL: 'public-read'
+    }
+  }
+
+  var expectedResult = {
+    Bucket: 'test.domain',
+    ACL: 'public-read'
+  }
+
+  var result = config.bucketConfig(testConfig)
+  t.deepEqual(result, expectedResult)
+  t.end()
+})
+
 // websiteConfig
