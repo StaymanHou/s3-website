@@ -1,4 +1,5 @@
-var config = require('../config');
+var config = require('../config')
+var constants = require('../constants')
 var test = require('tape')
 
 // mergeConfig
@@ -27,6 +28,21 @@ test('it should include bucketConfig', function (t) {
   var expectedResult = {
     Bucket: 'test.domain',
     ACL: 'public-read'
+  }
+
+  var result = config.bucketConfig(testConfig)
+  t.deepEqual(result, expectedResult)
+  t.end()
+})
+
+test('it should not set location constraint for default location', function (t) {
+  var testConfig = {
+    domain: 'test.domain',
+    region: constants.defaultRegion
+  }
+
+  var expectedResult = {
+    Bucket: 'test.domain',
   }
 
   var result = config.bucketConfig(testConfig)

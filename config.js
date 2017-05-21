@@ -49,12 +49,32 @@ var defaultWebsiteConfig = {
   }
 }
 
+function isDefaultRegion(config) {
+  return config.region === 'us-east-1'
+}
+
 function mergeConfig(config, defaultConfig) {
   return Object.assign({}, defaultConfig || {}, config || {});
 }
 
 function bucketConfig(config) {
-  return Object.assign({}, config.bucketConfig, {Bucket: config.domain});
+  var transformedConfig = { Bucket: config.domain };
+  if(config.region && !isDefaultRegion(config)) {
+    Object.assign(
+      transformedConfig,
+      {
+        CreateBucketConfiguration: {
+          LocationConstraint: config.region
+        }
+      }
+    )
+  }
+
+  return Object.assign(
+    {},
+    config.bucketConfig,
+    transformedConfig
+  );
 }
 
 function websiteConfig() {
