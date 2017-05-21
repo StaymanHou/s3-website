@@ -18,6 +18,22 @@ var utils = require('./utils')
 var configs = require('./defaults')
 
 
+// getWebsite(config){
+//  const config = bucketConfig(config);
+
+// }
+
+
+// TODO can this work?
+// function _s3Site(config, cb) {
+//   const config = mergeConfig(config, defaultConfig)
+//   const s3Config = s3IfyConfig(config)
+//   const website = getWebsite(s3Config)
+//   const websiteState = ParseWebsite(website)
+//   const updatedWebsiteState = updateWebsite(websiteState);
+//   report(updatedWebsiteState);
+// }
+
 function mergeResults (oldResult, newResult) {
   var updated = oldResult.updated.concat(newResult.updated)
   var uploaded = oldResult.uploaded.concat(newResult.uploaded)
@@ -65,12 +81,13 @@ function s3site (config, cb) {
 
   assert(typeof config === 'object')
   assert(typeof config.domain === 'string')
-
+// NOTE can we use a single config?
   config = defaults(config, configs.defaultConfig)
 
   var bucketConfig = defaults(config.bucketConfig || {}, configs.defaultBucketConfig)
   var websiteConfig = defaults(config.websiteConfig || {}, configs.defaultWebsiteConfig)
 
+// This is merging configs
   if (config.domain) {
     bucketConfig.Bucket = config.domain
     websiteConfig.Bucket = config.domain
@@ -102,6 +119,7 @@ function s3site (config, cb) {
 
   var s3 = new AWS.S3({ region: config.region, maxRetries: config.retries })
 
+  // This part gets website info
   s3.createBucket(bucketConfig, function (err, bucket) {
     if (err && err.code !== 'BucketAlreadyOwnedByYou') return cb(err)
 

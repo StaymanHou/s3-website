@@ -1,27 +1,10 @@
 // TODO extract networky things
-function deleteFile (s3, config, file, cb) {
-  var params = {
-    Bucket: config.domain,
-    Key: normalizeKey(config.prefix, file)
-  }
-  logUpdate('Removing: ' + file)
-  s3.deleteObject(params, function (err, data) {
-    if (err && cb) { return cb(err, data, file) }
-    if (cb) { cb(err, data, file) }
-  })
-}
-
-function uploadFile (s3, config, file, cb) {
-  var params = {
-    Bucket: config.domain,
-    Key: normalizeKey(config.prefix, file),
-    Body: fs.createReadStream(path.join(config.uploadDir, file)),
-    ContentType: mime.lookup(file)
-  }
-
-  logUpdate('Uploading: ' + file)
-  s3.putObject(params, function (err, data) {
-    if (err && cb) { return cb(err, data, file) }
-    if (cb) { cb(err, data, file) }
-  })
-}
+function deleteFile (s3, config, file, cb){}
+function uploadFile (s3, config, file, cb){}
+function createWebsite (s3, websiteConfig, config, cb) {}
+function putWebsite () {}
+function setCorsRules (s3, bucket, rules, cb) {}
+function setPolicy (s3, bucket, cb) {}
+function putWebsiteContent (s3, config, cb) {}
+function deleteFiles (s3, config, files, cb, results = {done: [], errors: []}) {}
+function uploadFiles (s3, config, files, cb, results = {done: [], errors: []}) {}
