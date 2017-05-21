@@ -15,7 +15,7 @@ var logUpdate = require('log-update')
 var array = require('lodash/array')
 
 var utils = require('./utils')
-var configs = require('./defaults')
+var configs = require('./config')
 
 
 // getWebsite(config){
