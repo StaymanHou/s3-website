@@ -44,7 +44,7 @@ var defaultWebsiteConfig = {
   Bucket: '', /* required */
   WebsiteConfiguration: { /* required */
     IndexDocument: {
-      Suffix: defaultConfig.index /* required */
+      Suffix: defaultConfig().index /* required */
     }
   }
 }
@@ -71,14 +71,38 @@ function bucketConfig(config) {
   }
 
   return Object.assign(
-    {},
-    config.bucketConfig,
-    transformedConfig
+    transformedConfig,
+    config.bucketConfig
   );
 }
 
-function websiteConfig() {
-  return null;
+function websiteConfig(config) {
+  var transformedConfig = {
+    Bucket: config.domain
+  };
+
+  if (config.redirectall) {
+    websiteConfig.WebsiteConfiguration = {
+      RedirectAllRequestsTo: { HostName: config.redirectall }
+    }
+  }
+
+  if (config.index && !config.redirectall) {
+    websiteConfig.WebsiteConfiguration.IndexDocument.Suffix = config.index
+  }
+
+  if (config.error && !config.redirectall) {
+    websiteConfig.WebsiteConfiguration.ErrorDocument = { Key: config.error }
+  }
+
+  if (config.routes && !config.redirectall) {
+    websiteConfig.WebsiteConfiguration.RoutingRules = loadRoutes(config.routes)
+  }
+
+  return Object.assign(
+    transformedConfig,
+    config.websiteConfig
+  );
 }
 
 function cloudfrontConfig() {

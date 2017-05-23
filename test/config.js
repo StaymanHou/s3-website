@@ -65,3 +65,28 @@ test('it should not set location constraint for default location', function (t) 
 })
 
 // websiteConfig
+test('it should include websiteConfig', function (t) {
+  var testConfig = {
+    domain: 'test.domain',
+    websiteConfig: {
+      WebsiteConfiguration: {
+        ErrorDocument: {
+          Key: 'Test Error'
+        }
+      }
+    }
+  }
+
+  var expectedResult = {
+    Bucket: 'test.domain',
+    WebsiteConfiguration: {
+      ErrorDocument: {
+        Key: 'Test Error'
+      }
+    }
+  }
+
+  var result = config.websiteConfig(testConfig)
+  t.deepEqual(result, expectedResult)
+  t.end()
+})
