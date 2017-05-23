@@ -76,46 +76,16 @@ function uploadFile (s3, config, file, cb) {
   })
 }
 
-function s3site (config, cb) {
+function s3site (rawConfig, cb) {
   if (typeof cb !== 'function') cb = function () {}
 
-  assert(typeof config === 'object')
-  assert(typeof config.domain === 'string')
-// NOTE can we use a single config?
-  config = defaults(config, configs.defaultConfig)
+  assert(typeof rawConfig === 'object')
+  assert(typeof rawConfig.domain === 'string')
 
-  var bucketConfig = defaults(config.bucketConfig || {}, configs.defaultBucketConfig)
-  var websiteConfig = defaults(config.websiteConfig || {}, configs.defaultWebsiteConfig)
+  var config = configs.mergeConfig(rawConfig);
 
-// This is merging configs
-  if (config.domain) {
-    bucketConfig.Bucket = config.domain
-    websiteConfig.Bucket = config.domain
-  }
-
-  if (config.region && config.region !== 'us-east-1') { // LocationConstraint for default location is invalid
-    bucketConfig.CreateBucketConfiguration = { LocationConstraint: config.region }
-  } else {
-    config.region = configs.defaultConfig.region
-  }
-
-  if (config.redirectall) {
-    websiteConfig.WebsiteConfiguration = {
-      RedirectAllRequestsTo: { HostName: config.redirectall }
-    }
-  }
-
-  if (config.index && !config.redirectall) {
-    websiteConfig.WebsiteConfiguration.IndexDocument.Suffix = config.index
-  }
-
-  if (config.error && !config.redirectall) {
-    websiteConfig.WebsiteConfiguration.ErrorDocument = { Key: config.error }
-  }
-
-  if (config.routes && !config.redirectall) {
-    websiteConfig.WebsiteConfiguration.RoutingRules = loadRoutes(config.routes)
-  }
+  var bucketConfig = configs.bucketConfig(config)
+  var websiteConfig = configs.websiteConfig(config)
 
   var s3 = new AWS.S3({ region: config.region, maxRetries: config.retries })
 

@@ -1,3 +1,6 @@
+var assert = require('assert')
+var util = require('util')
+
 function defaultConfig() {
   return {
     index: 'index.html',
@@ -40,11 +43,13 @@ var defaultBucketConfig = {
   Bucket: '' /* required */
 }
 
-var defaultWebsiteConfig = {
-  Bucket: '', /* required */
-  WebsiteConfiguration: { /* required */
-    IndexDocument: {
-      Suffix: defaultConfig().index /* required */
+var defaultWebsiteConfig = function() {
+  return {
+    Bucket: '', /* required */
+    WebsiteConfiguration: { /* required */
+      IndexDocument: {
+        Suffix: defaultConfig().index /* required */
+      }
     }
   }
 }
@@ -76,30 +81,77 @@ function bucketConfig(config) {
   );
 }
 
+function loadRoutes (routesOrFile) {
+  var routes
+  if (typeof routesOrFile === 'string') {
+    routes = require(path.resolve(__dirname, routesOrFile))
+  } else {
+    routes = routesOrFile
+  }
+
+  validateRoutes(routes)
+  return routes
+}
+
+function validateRoutes (routes) {
+  assert(Array.isArray(routes), 'Routes must be an array')
+
+  var validProperties = {
+    Condition: {
+      HttpErrorCodeReturnedEquals: true,
+      KeyPrefixEquals: true
+    },
+    Redirect: {
+      HostName: true,
+      Protocol: true,
+      ReplaceKeyPrefixWith: true,
+      ReplaceKeyWith: true,
+      HttpRedirectCode: true
+    }
+  }
+
+  routes.forEach(function (route, idx) {
+    validateProps(route, validProperties)
+    validateProps(route.Condition, validProperties.Condition)
+    validateProps(route.Redirect, validProperties.Redirect)
+  })
+}
+
+function validateProps (obj, props, idx) {
+  var keys = Object.keys(obj)
+  assert(keys.length > 0, util.format('Invalid route at index %s', idx))
+  keys.forEach(function (key) {
+    assert(props[key], util.format('Invalid route property %s at index %s', key, idx))
+  })
+}
+
+
 function websiteConfig(config) {
-  var transformedConfig = {
-    Bucket: config.domain
-  };
+  var transformedConfig = Object.assign(
+    defaultWebsiteConfig(),
+    { Bucket: config.domain}
+  )
 
   if (config.redirectall) {
-    websiteConfig.WebsiteConfiguration = {
+    transformedConfig.WebsiteConfiguration = {
       RedirectAllRequestsTo: { HostName: config.redirectall }
     }
   }
 
   if (config.index && !config.redirectall) {
-    websiteConfig.WebsiteConfiguration.IndexDocument.Suffix = config.index
+    transformedConfig.WebsiteConfiguration.IndexDocument.Suffix = config.index
   }
 
   if (config.error && !config.redirectall) {
-    websiteConfig.WebsiteConfiguration.ErrorDocument = { Key: config.error }
+    transformedConfig.WebsiteConfiguration.ErrorDocument = { Key: config.error }
   }
 
   if (config.routes && !config.redirectall) {
-    websiteConfig.WebsiteConfiguration.RoutingRules = loadRoutes(config.routes)
+    transformedConfig.WebsiteConfiguration.RoutingRules = loadRoutes(config.routes)
   }
 
   return Object.assign(
+    defaultWebsiteConfig(),
     transformedConfig,
     config.websiteConfig
   );
