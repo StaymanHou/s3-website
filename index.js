@@ -34,6 +34,31 @@ var configs = require('./config')
 //   report(updatedWebsiteState);
 // }
 
+// websiteState: {
+//   bucketPolicyDirty: bool,
+//   websiteDirty: bool,
+//   contentDirty: bool,
+//   corsDirty: bool,
+//   configFileDirty: bool
+// }
+
+// function writer(config, state) {
+//  TODO write something
+// }
+
+
+// Getters ------------------------------------------------------------------
+
+// function (config) -> state { dirty: bool, other: things }
+// function parsePolicy(){}
+
+// Updaters -----------------------------------------------------------------
+
+// function writer(config, state) -> state{ dirty: bool, other: things }
+
+// Reporters ----------------------------------------------------------------
+// function reporter(config, state) -> print results
+
 function mergeResults (oldResult, newResult) {
   var updated = oldResult.updated.concat(newResult.updated)
   var uploaded = oldResult.uploaded.concat(newResult.uploaded)
@@ -93,8 +118,10 @@ function s3site (rawConfig, cb) {
   s3.createBucket(bucketConfig, function (err, bucket) {
     if (err && err.code !== 'BucketAlreadyOwnedByYou') return cb(err)
 
+    // QUESTION: What does this do?
     setPolicy(s3, config.domain, function (err) {
       if (err) return cb(err)
+      // QUESTION: Why is this getting called agian?
       createWebsite(s3, websiteConfig, config, function (err, website) {
         if (err) return cb(err)
 

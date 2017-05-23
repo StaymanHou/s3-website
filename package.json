@@ -6,7 +6,7 @@
   "scripts": {
     "test": "node test/index.js | faucet",
     "unitTests": "node test/unit.js | faucet",
-    "integrationTests": "node test/integration.js | faucet", 
+    "integrationTests": "node test/integration.js | faucet",
     "lint": "snazzy",
     "prepublish": "npm prune && npm ls && npm run lint && npm test"
   },
